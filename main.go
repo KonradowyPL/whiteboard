@@ -1,14 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"image/color"
 	"log"
 	"math/rand"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"mrogalski.eu/go/vec"
 )
 
@@ -19,16 +17,6 @@ type Game struct {
 	lastMouse vec.Vec
 
 	world World
-}
-
-type World struct {
-	lastUpdate int64
-
-	grid [][]object
-}
-
-type object struct {
-	color color.RGBA
 }
 
 type Camera struct {
@@ -92,10 +80,6 @@ func (g *Game) moveCamera(cursorPos vec.Vec) {
 	}
 }
 
-func (w *World) Update() error {
-	return nil
-}
-
 func (g *Game) Update() error {
 	now := time.Now().UnixNano()
 
@@ -121,28 +105,6 @@ func (g *Game) Update() error {
 
 	g.lastMouse = cursorPos
 	return nil
-}
-
-func (g *Game) Draw(screen *ebiten.Image) {
-
-	for x, row := range g.world.grid {
-		for y, tile := range row {
-			square := ebiten.NewImage(32, 32)
-			square.Fill(tile.color)
-
-			opts := &ebiten.DrawImageOptions{}
-
-			screenPos := g.worldToGlobal(vec.New(float64(x)*32, float64(y)*32))
-
-			opts.GeoM.Translate(screenPos.X, screenPos.Y)
-			opts.GeoM.Scale(g.camera.zoom, g.camera.zoom)
-
-			screen.DrawImage(square, opts)
-
-		}
-	}
-
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("%dTPS\n%.2fFPS", ebiten.TPS(), ebiten.ActualFPS()))
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
