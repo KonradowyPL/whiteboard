@@ -29,6 +29,22 @@ var zoom = struct {
 	max float64
 }{0.05, 4}
 
+// converts tile index to cords within chunk
+func tileToCords(index byte) (byte, byte) {
+	x := (index & 0x0F)
+	y := (index & 0xF0) >> 4
+	return x, y
+}
+
+// converts cords within chunk into tile index
+//
+// WARNING: does not check if given cords are within chunk
+//
+// inverse of func tileToCords()
+func cordsToTile(x byte, y byte) byte {
+	return y<<4 + x
+}
+
 // converts screen position in pixels to world space
 func (g *Game) screenToWorldspace(pos vec.Vec) vec.Vec {
 	return pos.Scale(1 / g.camera.zoom).Add(g.camera.pos)
@@ -112,24 +128,29 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 }
 
 func main() {
-	game := &Game{}
-	game.camera.zoom = 1
+	g := &Game{}
+	g.camera.zoom = 1
 
-	for i := 0; i < 10; i++ {
-		row := make([]object, 10)
-		for j := 0; j < 10; j++ {
-			r, g, b := uint8(rand.Intn(0xff)), uint8(rand.Intn(0xff)), uint8(rand.Intn(0xff))
-			row[j] = object{color.RGBA{r, g, b, 0xff}}
-		}
-		game.world.grid = append(game.world.grid, row)
-	}
+	// temp code for generating chunk
+
+	g.world.chunks = append(g.world.chunks, tempCreateChunk(0, 0))
+	g.world.chunks = append(g.world.chunks, tempCreateChunk(2, 0))
 
 	ebiten.SetTPS(60)
 	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowTitle("Hello, World!")
 
-	if err := ebiten.RunGame(game); err != nil {
+	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func tempCreateChunk(x, y int) loadedChunk {
+	chunk := loadedChunk{x: x, y: y}
+	for i, _ := range chunk.grid {
+		r, g, b := uint8(rand.Intn(0xff)), uint8(rand.Intn(0xff)), uint8(rand.Intn(0xff))
+		chunk.grid[i].color = color.RGBA{r, g, b, 0xff}
+	}
+	return chunk
 }

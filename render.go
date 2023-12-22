@@ -29,24 +29,36 @@ func (g *Game) debugRender(screen *ebiten.Image, pos vec.Vec) {
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(HexToRGBA(0x010730ff))
 	g.renderGrid(screen)
-	for x, row := range g.world.grid {
-		for y, tile := range row {
-			square := ebiten.NewImage(32, 32)
-			square.Fill(tile.color)
 
-			opts := &ebiten.DrawImageOptions{}
-
-			screenPos := g.worldToGlobal(vec.New(float64(x)*32, float64(y)*32))
-
-			opts.GeoM.Translate(screenPos.X, screenPos.Y)
-			opts.GeoM.Scale(g.camera.zoom, g.camera.zoom)
-
-			screen.DrawImage(square, opts)
-
-		}
+	for i, _ := range g.world.chunks {
+		g.renderChunk(screen, i)
 	}
 
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("%dTPS\n%.2fFPS", ebiten.TPS(), ebiten.ActualFPS()))
+}
+
+// renders single chunk
+func (g *Game) renderChunk(screen *ebiten.Image, id int) {
+	chunk := g.world.chunks[id]
+	x := float64(chunk.x << 9)
+	y := float64(chunk.y << 9)
+
+	for i, tile := range chunk.grid {
+		tileX, tileY := tileToCords(byte(i))
+
+		square := ebiten.NewImage(32, 32)
+		square.Fill(tile.color)
+
+		opts := &ebiten.DrawImageOptions{}
+
+		screenPos := g.worldToGlobal(vec.New(float64(tileX)*32+x, float64(tileY)*32+y))
+
+		opts.GeoM.Translate(screenPos.X, screenPos.Y)
+		opts.GeoM.Scale(g.camera.zoom, g.camera.zoom)
+
+		screen.DrawImage(square, opts)
+
+	}
 }
 
 func (g *Game) renderGrid(screen *ebiten.Image) {
@@ -118,5 +130,4 @@ func HexToRGBA(c uint32) color.RGBA {
 	a := c & 0xFF
 
 	return color.RGBA{uint8(r), uint8(g), uint8(b), uint8(a)}
-
 }
