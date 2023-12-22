@@ -30,7 +30,22 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(HexToRGBA(0x010730ff))
 	g.renderGrid(screen)
 
-	for i, _ := range g.world.chunks {
+	// get screen size
+	size := screen.Bounds()
+	sizeX := size.Dx()
+	sizeY := size.Dy()
+
+	// calculate top left position
+	from := g.screenToWorldspace(vec.Zero).Scale(0.001953125)
+	// calculate bottor right position
+	to := g.screenToWorldspace(vec.New(float64(sizeX), float64(sizeY))).Scale(0.001953125)
+
+	for i, chunk := range g.world.chunks {
+		// skip rendering chunk if it is FULLY outside screen
+		if chunk.x < int(from.X) || chunk.x > int(to.X) || chunk.y < int(from.Y) || chunk.y > int(to.Y) {
+			continue
+		}
+
 		g.renderChunk(screen, i)
 	}
 
@@ -40,25 +55,40 @@ func (g *Game) Draw(screen *ebiten.Image) {
 // renders single chunk
 func (g *Game) renderChunk(screen *ebiten.Image, id int) {
 	chunk := g.world.chunks[id]
+	// calcualte chunk origin position position
 	x := float64(chunk.x << 9)
 	y := float64(chunk.y << 9)
 
 	for i, tile := range chunk.grid {
 		tileX, tileY := tileToCords(byte(i))
 
-		square := ebiten.NewImage(32, 32)
-		square.Fill(tile.color)
-
-		opts := &ebiten.DrawImageOptions{}
-
-		screenPos := g.worldToGlobal(vec.New(float64(tileX)*32+x, float64(tileY)*32+y))
-
-		opts.GeoM.Translate(screenPos.X, screenPos.Y)
-		opts.GeoM.Scale(g.camera.zoom, g.camera.zoom)
-
-		screen.DrawImage(square, opts)
-
+		tile.renderTile(screen, g, float64(tileX)*32+x, float64(tileY)*32+y)
 	}
+}
+
+// renders tile using given rendering function
+// this will be usefull when difrent tiles will have diffrent rendering modes and features
+func (t *object) renderTile(screen *ebiten.Image, g *Game, x float64, y float64) {
+	switch t.Type {
+	case 1:
+		t.square.render(g, screen, x, y)
+		break
+	case 2:
+		t.circle.render(g, screen, x, y)
+		break
+	}
+
+}
+
+func (g *Game) basicRedner(screen *ebiten.Image, x float64, y float64, img *ebiten.Image) {
+	opts := &ebiten.DrawImageOptions{}
+
+	screenPos := g.worldToGlobal(vec.New(x, y))
+
+	opts.GeoM.Translate(screenPos.X, screenPos.Y)
+	opts.GeoM.Scale(g.camera.zoom, g.camera.zoom)
+
+	screen.DrawImage(img, opts)
 }
 
 func (g *Game) renderGrid(screen *ebiten.Image) {
@@ -90,7 +120,7 @@ func (g *Game) drawLines(screen *ebiten.Image, step float64, c color.Color, opac
 
 	// calculate
 	fromX := math.Floor(from.X)
-	fromY, _ := math.Modf(from.Y)
+	fromY := math.Floor(from.Y)
 
 	// print vertical lines
 	for x := fromX; x < to.X; x++ {

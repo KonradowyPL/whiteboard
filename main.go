@@ -131,8 +131,7 @@ func main() {
 	g := &Game{}
 	g.camera.zoom = 1
 
-	// temp code for generating chunk
-
+	// temp code for generating chunks
 	g.world.chunks = append(g.world.chunks, tempCreateChunk(0, 0))
 	g.world.chunks = append(g.world.chunks, tempCreateChunk(2, 0))
 
@@ -150,7 +149,8 @@ func tempCreateChunk(x, y int) loadedChunk {
 	chunk := loadedChunk{x: x, y: y}
 	for i, _ := range chunk.grid {
 		r, g, b := uint8(rand.Intn(0xff)), uint8(rand.Intn(0xff)), uint8(rand.Intn(0xff))
-		chunk.grid[i].color = color.RGBA{r, g, b, 0xff}
+		chunk.grid[i].square.color = color.RGBA{r, g, b, 0xff}
+		chunk.grid[i].Type = 1
 	}
 	return chunk
 }
