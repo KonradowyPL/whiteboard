@@ -3,7 +3,6 @@ package main
 import (
 	"image/color"
 	"log"
-	"math/rand"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -43,6 +42,20 @@ func tileToCords(index byte) (byte, byte) {
 // inverse of func tileToCords()
 func cordsToTile(x byte, y byte) byte {
 	return y<<4 + x
+}
+
+// converts global cords to chunk cords
+func cordsToChunk(x int, y int) (int, int) {
+	return x >> 4, y >> 4
+}
+
+func (g *Game) getChunkAt(x int, y int) int {
+	for i, chunk := range g.world.chunks {
+		if chunk.x == x && chunk.y == y {
+			return i
+		}
+	}
+	return -1
 }
 
 // converts screen position in pixels to world space
@@ -118,6 +131,7 @@ func (g *Game) Update() error {
 	x, y := ebiten.CursorPosition()
 	cursorPos := vec.New(float64(x), float64(y))
 	g.moveCamera(cursorPos)
+	g.Editor(cursorPos)
 
 	g.lastMouse = cursorPos
 	return nil
@@ -127,17 +141,23 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 	return ebiten.WindowSize()
 }
 
+var white *ebiten.Image = ebiten.NewImage(32, 32)
+
 func main() {
+	white.Fill(color.RGBA{0xff, 0xff, 0xff, 0xff})
 	g := &Game{}
 	g.camera.zoom = 1
 
 	// temp code for generating chunks
+	g.world.chunks = append(g.world.chunks, tempCreateChunk(-1, 0))
 	g.world.chunks = append(g.world.chunks, tempCreateChunk(0, 0))
 	g.world.chunks = append(g.world.chunks, tempCreateChunk(2, 0))
+	g.world.chunks = append(g.world.chunks, tempCreateChunk(3, 0))
 
-	ebiten.SetTPS(60)
 	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+	// we can do this becouse in render we are filling screen it already
+	ebiten.SetScreenClearedEveryFrame(false)
 	ebiten.SetWindowTitle("Hello, World!")
 
 	if err := ebiten.RunGame(g); err != nil {
@@ -147,10 +167,9 @@ func main() {
 
 func tempCreateChunk(x, y int) loadedChunk {
 	chunk := loadedChunk{x: x, y: y}
-	for i, _ := range chunk.grid {
-		r, g, b := uint8(rand.Intn(0xff)), uint8(rand.Intn(0xff)), uint8(rand.Intn(0xff))
-		chunk.grid[i].square.color = color.RGBA{r, g, b, 0xff}
-		chunk.grid[i].Type = 1
+
+	for i := 0; i < len(chunk.grid); i++ {
+		chunk.grid[i].Type = 0
 	}
 	return chunk
 }

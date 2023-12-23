@@ -36,13 +36,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	sizeY := size.Dy()
 
 	// calculate top left position
-	from := g.screenToWorldspace(vec.Zero).Scale(0.001953125)
-	// calculate bottor right position
+	from := g.screenToWorldspace(vec.Zero).Scale(0.001953125).Add(vec.New(-1, -1))
+	// calculate bottom right position
 	to := g.screenToWorldspace(vec.New(float64(sizeX), float64(sizeY))).Scale(0.001953125)
 
 	for i, chunk := range g.world.chunks {
 		// skip rendering chunk if it is FULLY outside screen
-		if chunk.x < int(from.X) || chunk.x > int(to.X) || chunk.y < int(from.Y) || chunk.y > int(to.Y) {
+		if float64(chunk.x) < from.X || float64(chunk.x) > to.X || float64(chunk.y) < from.Y || float64(chunk.y) > to.Y {
 			continue
 		}
 
@@ -71,10 +71,7 @@ func (g *Game) renderChunk(screen *ebiten.Image, id int) {
 func (t *object) renderTile(screen *ebiten.Image, g *Game, x float64, y float64) {
 	switch t.Type {
 	case 1:
-		t.square.render(g, screen, x, y)
-		break
-	case 2:
-		t.circle.render(g, screen, x, y)
+		t.belt.render(g, screen, x, y)
 		break
 	}
 

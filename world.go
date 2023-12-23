@@ -1,8 +1,6 @@
 package main
 
 import (
-	"image/color"
-
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -24,30 +22,15 @@ type object struct {
 
 	// 0 is reservated for air/null tiles
 
-	square Square // 1
-	circle Circle // 2
+	belt Belt
 }
 
-type Square struct {
-	color color.RGBA
+type Belt struct {
+	next byte
 }
 
-func (t *Square) render(g *Game, screen *ebiten.Image, x float64, y float64) {
-	img := ebiten.NewImage(32, 32)
-	img.Fill(t.color)
-
-	g.basicRedner(screen, x, y, img)
-}
-
-type Circle struct {
-	color color.RGBA
-}
-
-func (t *Circle) render(g *Game, screen *ebiten.Image, x float64, y float64) {
-	img := ebiten.NewImage(32, 32)
-	img.Fill(t.color)
-
-	g.basicRedner(screen, x, y, img)
+func (t *Belt) render(g *Game, screen *ebiten.Image, x float64, y float64) {
+	g.basicRedner(screen, x, y, white)
 }
 
 func (w *World) Update() error {
