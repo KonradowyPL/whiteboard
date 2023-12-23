@@ -142,8 +142,13 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 }
 
 var white *ebiten.Image = ebiten.NewImage(32, 32)
+var BuildTime string
+var Version string
 
 func main() {
+	log.Println("Build time:", BuildTime)
+	log.Println("Version:", Version)
+
 	white.Fill(color.RGBA{0xff, 0xff, 0xff, 0xff})
 	g := &Game{}
 	g.camera.zoom = 1
@@ -151,6 +156,7 @@ func main() {
 	// temp code for generating chunks
 	g.world.chunks = append(g.world.chunks, tempCreateChunk(-1, 0))
 	g.world.chunks = append(g.world.chunks, tempCreateChunk(0, 0))
+	g.world.chunks = append(g.world.chunks, tempCreateChunk(1, 0))
 	g.world.chunks = append(g.world.chunks, tempCreateChunk(2, 0))
 	g.world.chunks = append(g.world.chunks, tempCreateChunk(3, 0))
 
