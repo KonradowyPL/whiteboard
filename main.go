@@ -40,8 +40,8 @@ func tileToCords(index byte) (byte, byte) {
 // WARNING: does not check if given cords are within chunk
 //
 // inverse of func tileToCords()
-func cordsToTile(x byte, y byte) byte {
-	return y<<4 + x
+func cordsToTile(x int, y int) byte {
+	return byte((x & 0x0F) + (y&0x0F)<<4)
 }
 
 // converts global cords to chunk cords
@@ -56,6 +56,15 @@ func (g *Game) getChunkAt(x int, y int) int {
 		}
 	}
 	return -1
+}
+
+func cordsToPos(x int, y int) (inChunkX int, inChunkY int, chunkX int, chunkY int) {
+
+	chunkX, chunkY = cordsToChunk(x, y)
+	inChunkX = x & 0xF
+	inChunkY = y & 0xF
+
+	return inChunkX, inChunkY, chunkX, chunkY
 }
 
 // converts screen position in pixels to world space
@@ -157,8 +166,8 @@ func main() {
 	g.world.chunks = append(g.world.chunks, tempCreateChunk(-1, 0))
 	g.world.chunks = append(g.world.chunks, tempCreateChunk(0, 0))
 	g.world.chunks = append(g.world.chunks, tempCreateChunk(1, 0))
-	g.world.chunks = append(g.world.chunks, tempCreateChunk(2, 0))
-	g.world.chunks = append(g.world.chunks, tempCreateChunk(3, 0))
+	g.world.chunks = append(g.world.chunks, tempCreateChunk(0, 1))
+	g.world.chunks = append(g.world.chunks, tempCreateChunk(1, 1))
 
 	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)

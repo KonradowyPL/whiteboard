@@ -13,7 +13,7 @@ import (
 // debug funciton to print 8x8 pixel on the screen
 func (g *Game) debugRender(screen *ebiten.Image, pos vec.Vec) {
 	square := ebiten.NewImage(8, 8)
-	square.Fill(color.White)
+	square.Fill(color.RGBA{128, 128, 128, 128})
 
 	opts := &ebiten.DrawImageOptions{}
 
@@ -55,23 +55,23 @@ func (g *Game) Draw(screen *ebiten.Image) {
 // renders single chunk
 func (g *Game) renderChunk(screen *ebiten.Image, id int) {
 	chunk := g.world.chunks[id]
-	// calcualte chunk origin position position
-	x := float64(chunk.x << 9)
-	y := float64(chunk.y << 9)
+
+	x := float64(chunk.x)
+	y := float64(chunk.y)
 
 	for i, tile := range chunk.grid {
 		tileX, tileY := tileToCords(byte(i))
 
-		tile.renderTile(screen, g, float64(tileX)*32+x, float64(tileY)*32+y)
+		tile.renderTile(screen, g, float64(tileX), x, float64(tileY), y)
 	}
 }
 
 // renders tile using given rendering function
 // this will be usefull when difrent tiles will have diffrent rendering modes and features
-func (t *object) renderTile(screen *ebiten.Image, g *Game, x float64, y float64) {
+func (t *object) renderTile(screen *ebiten.Image, g *Game, x float64, chunkX float64, y float64, chunkY float64) {
 	switch t.Type {
 	case 1:
-		t.belt.render(g, screen, x, y)
+		t.belt.render(g, screen, x, chunkX, y, chunkY)
 		break
 	}
 
