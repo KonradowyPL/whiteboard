@@ -28,11 +28,24 @@ var zoom = struct {
 	max float64
 }{0.05, 4}
 
+type Number interface {
+	~int | ~int8 | ~int16 | ~int32 | ~int64 |
+		~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr |
+		~float32 | ~float64
+}
+
 // converts tile index to cords within chunk
 func tileToCords(index byte) (byte, byte) {
 	x := (index & 0x0F)
 	y := (index & 0xF0) >> 4
 	return x, y
+}
+
+func abs[T Number](x T) T {
+	if x < T(0) {
+		return -x
+	}
+	return x
 }
 
 // converts cords within chunk into tile index
@@ -49,6 +62,7 @@ func cordsToChunk(x int, y int) (int, int) {
 	return x >> 4, y >> 4
 }
 
+// converts chunk cordinates into chunk id in memory
 func (g *Game) getChunkAt(x int, y int) int {
 	for i, chunk := range g.world.chunks {
 		if chunk.x == x && chunk.y == y {
@@ -58,8 +72,8 @@ func (g *Game) getChunkAt(x int, y int) int {
 	return -1
 }
 
+// converts world cordinates into in chunk cordinates and to chunk cordinates
 func cordsToPos(x int, y int) (inChunkX int, inChunkY int, chunkX int, chunkY int) {
-
 	chunkX, chunkY = cordsToChunk(x, y)
 	inChunkX = x & 0xF
 	inChunkY = y & 0xF

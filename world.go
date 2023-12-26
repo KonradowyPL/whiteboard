@@ -44,21 +44,20 @@ func (t *Belt) render(g *Game, screen *ebiten.Image, x float64, chunkX float64, 
 	// multi chunk owning
 	// this code ensures that if one belt is on the edge of a chunk
 	// it will render properly next child
-	if x-float64(x2) > 8 {
+	if x-float64(x2) >= 8 {
 		convertedX = float64(x2) + 16
-	} else if x-float64(x2) < -8 {
+	} else if x-float64(x2) <= -8 {
 		convertedX = float64(x2) - 16
 	} else {
 		convertedX = float64(x2)
 	}
 
-	if y-float64(y2) > 8 {
+	if y-float64(y2) >= 8 {
 		convertedY = float64(y2) + 16
-	} else if y-float64(y2) < -8 {
+	} else if y-float64(y2) <= -8 {
 		convertedY = float64(y2) - 16
 	} else {
 		convertedY = float64(y2)
-
 	}
 
 	p1 := g.worldToScreen(vec.New(chunkX*512+float64(x)*32, chunkY*512+float64(y)*32))
