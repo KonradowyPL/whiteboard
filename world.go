@@ -62,7 +62,6 @@ func (t *Belt) render(g *Game, screen *ebiten.Image, x int, chunkX int, y int, c
 
 	for xPos := min(x, int(x2)); xPos < max(x, int(x2)); xPos++ {
 		g.basicRedner(screen, float64(chunkX*512+xPos*32), float64(chunkY*512+y*32), white)
-
 	}
 
 	p1 := g.worldToScreen(vec.New(float64(chunkX*512+x*32), float64(chunkY*512+y*32)))
