@@ -1,11 +1,12 @@
 package main
 
 import (
-	"image/color"
+	"image"
 	"log"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"mrogalski.eu/go/vec"
 )
 
@@ -164,7 +165,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 	return ebiten.WindowSize()
 }
 
-var white *ebiten.Image = ebiten.NewImage(32, 32)
+var white *ebiten.Image
 var BuildTime string
 var Version string
 
@@ -172,7 +173,10 @@ func main() {
 	log.Println("Build time:", BuildTime)
 	log.Println("Version:", Version)
 
-	white.Fill(color.RGBA{0xff, 0xff, 0xff, 0xff})
+	img, _, _ := ebitenutil.NewImageFromFile("textures.png")
+
+	white = img.SubImage(image.Rect(0, 0, 32, 32)).(*ebiten.Image)
+
 	g := &Game{}
 	g.camera.zoom = 1
 

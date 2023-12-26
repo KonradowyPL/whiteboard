@@ -56,19 +56,19 @@ func (g *Game) Draw(screen *ebiten.Image) {
 func (g *Game) renderChunk(screen *ebiten.Image, id int) {
 	chunk := g.world.chunks[id]
 
-	x := float64(chunk.x)
-	y := float64(chunk.y)
+	x := chunk.x
+	y := chunk.y
 
 	for i, tile := range chunk.grid {
 		tileX, tileY := tileToCords(byte(i))
 
-		tile.renderTile(screen, g, float64(tileX), x, float64(tileY), y)
+		tile.renderTile(screen, g, int(tileX), x, int(tileY), y)
 	}
 }
 
 // renders tile using given rendering function
 // this will be usefull when difrent tiles will have diffrent rendering modes and features
-func (t *object) renderTile(screen *ebiten.Image, g *Game, x float64, chunkX float64, y float64, chunkY float64) {
+func (t *object) renderTile(screen *ebiten.Image, g *Game, x int, chunkX int, y int, chunkY int) {
 	switch t.Type {
 	case 1:
 		t.belt.render(g, screen, x, chunkX, y, chunkY)
